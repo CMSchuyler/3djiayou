@@ -46,12 +46,14 @@ const Frame = ({
       if (image.current.material) {
         image.current.material.zoom = 1;
         
-        easing.damp3(
-          image.current.scale,
-          [0.85 * (hovered ? 0.85 : 1), 0.9 * (hovered ? 0.905 : 1), 1],
-          0.1,
-          delta
-        );
+        if (image.current.scale) {
+          easing.damp3(
+            image.current.scale,
+            [0.85 * (hovered ? 0.85 : 1), 0.9 * (hovered ? 0.905 : 1), 1],
+            0.1,
+            delta
+          );
+        }
       }
       
       if (frame.current.material && frame.current.material.color) {
@@ -81,8 +83,8 @@ const Frame = ({
   const baseHeight = baseWidth / aspectRatio;
   
   // 高度限制
-  const maxHeight = 1 * scaleFactor;
-  const minHeight = 0.5 * scaleFactor;
+  const maxHeight = 1.2 * scaleFactor;
+  const minHeight = 0.8 * scaleFactor;
   
   // 计算最终尺寸
   let finalWidth = baseWidth;
@@ -99,6 +101,10 @@ const Frame = ({
     finalHeight = minHeight;
     finalWidth = baseWidth * scale;
   }
+
+  // 计算图片的缩放比例
+  // 使图片完全填充frame但保持原始比例
+  const imageScale = [1, aspectRatio, 1];
 
   return (
     <group position={position} rotation={rotation}>
@@ -133,6 +139,7 @@ const Frame = ({
           url={url}
           transparent
           opacity={imageOpacity}
+          scale={imageScale}
         />
       </mesh>
       <Text
