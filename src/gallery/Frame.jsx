@@ -82,7 +82,7 @@ const Frame = ({
   
   // 高度限制
   const maxHeight = 1 * scaleFactor;
-  const minHeight =  * scaleFactor;
+  const minHeight = 0.5 * scaleFactor;
   
   // 计算最终尺寸
   let finalWidth = baseWidth;
