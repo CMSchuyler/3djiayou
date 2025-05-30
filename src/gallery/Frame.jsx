@@ -5,6 +5,20 @@ import { useCursor, Image, Text } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
 import PropTypes from 'prop-types';
 
+const FRAME_RATIOS = {
+  'Item 1': { width: 15, height: 12 },
+  'Item 2': { width: 15, height: 12 },
+  'Item 3': { width: 15, height: 12 },
+  'Item 4': { width: 15, height: 12 },
+  'Item 5': { width: 15, height: 12 },
+  'Item 6': { width: 15, height: 12 },
+  'Item 7': { width: 15, height: 12 },
+  'Item 8': { width: 15, height: 12 },
+  'Item 9': { width: 15, height: 12 },
+  'Item 10': { width: 15, height: 12 },
+  // ... 可以根据控制台输出的实际比例继续添加
+};
+
 const Frame = ({
   url,
   title,
@@ -13,8 +27,7 @@ const Frame = ({
   scaleFactor,
   GOLDENRATIO,
   onFrameClick,
-  animationComplete,
-  preloadedAspectRatio
+  animationComplete
 }) => {
   const image = useRef();
   const frame = useRef();
@@ -72,33 +85,10 @@ const Frame = ({
     }
   };
 
-  // 计算相框尺寸
-  const frameWidth = 1 * scaleFactor;
-  const frameHeight = frameWidth / preloadedAspectRatio;
-  
-  const maxHeight = 1.2 * scaleFactor;
-  const minHeight = 0.8 * scaleFactor;
-  
-  let boundedHeight = frameHeight;
-  let adjustedWidth = frameWidth;
-  
-  if (frameHeight > maxHeight) {
-    boundedHeight = maxHeight;
-    adjustedWidth = boundedHeight * preloadedAspectRatio;
-  } 
-  else if (frameHeight < minHeight) {
-    boundedHeight = minHeight;
-    adjustedWidth = boundedHeight * preloadedAspectRatio;
-  }
-
-  // 输出相框尺寸计算信息
-  console.log(`Frame ${title} 计算信息:`, {
-    原始宽高比: preloadedAspectRatio,
-    计算后宽度: adjustedWidth,
-    计算后高度: boundedHeight,
-    实际宽高比: adjustedWidth / boundedHeight,
-    缩放因子: scaleFactor
-  });
+  // 使用固定的宽高比
+  const frameRatio = FRAME_RATIOS[title] || { width: 15, height: 12 };
+  const adjustedWidth = frameRatio.width;
+  const boundedHeight = frameRatio.height;
 
   return (
     <group position={position} rotation={rotation}>
@@ -159,12 +149,7 @@ Frame.propTypes = {
   scaleFactor: PropTypes.number.isRequired,
   GOLDENRATIO: PropTypes.number.isRequired,
   onFrameClick: PropTypes.func,
-  animationComplete: PropTypes.bool,
-  preloadedAspectRatio: PropTypes.number
-};
-
-Frame.defaultProps = {
-  preloadedAspectRatio: 1.61803398875
+  animationComplete: PropTypes.bool
 };
 
 export default Frame;
