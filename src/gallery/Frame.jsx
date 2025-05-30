@@ -44,7 +44,7 @@ const Frame = ({
       setImageOpacity(Math.max(0, Math.min(1, opacity)));
   
       if (image.current.material) {
-        image.current.material.zoom = 1.1;
+        image.current.material.zoom = 1;
         
         easing.damp3(
           image.current.scale,
@@ -74,23 +74,30 @@ const Frame = ({
     }
   };
 
-  // Use the provided aspect ratio instead of GOLDENRATIO
-  const frameWidth = 1 * scaleFactor;
-  const frameHeight = frameWidth / aspectRatio;
+  // 基准宽度
+  const baseWidth = 1 * scaleFactor;
   
-  const maxHeight = 1.2 * scaleFactor;
-  const minHeight = 0.8 * scaleFactor;
+  // 根据宽高比计算初始高度
+  const baseHeight = baseWidth / aspectRatio;
   
-  let boundedHeight = frameHeight;
-  let adjustedWidth = frameWidth;
+  // 高度限制
+  const maxHeight = 1 * scaleFactor;
+  const minHeight =  * scaleFactor;
   
-  if (frameHeight > maxHeight) {
-    boundedHeight = maxHeight;
-    adjustedWidth = boundedHeight * aspectRatio;
+  // 计算最终尺寸
+  let finalWidth = baseWidth;
+  let finalHeight = baseHeight;
+  
+  // 如果高度超出限制，按比例缩放整个frame
+  if (baseHeight > maxHeight) {
+    const scale = maxHeight / baseHeight;
+    finalHeight = maxHeight;
+    finalWidth = baseWidth * scale;
   } 
-  else if (frameHeight < minHeight) {
-    boundedHeight = minHeight;
-    adjustedWidth = boundedHeight * aspectRatio;
+  else if (baseHeight < minHeight) {
+    const scale = minHeight / baseHeight;
+    finalHeight = minHeight;
+    finalWidth = baseWidth * scale;
   }
 
   return (
@@ -101,7 +108,7 @@ const Frame = ({
         onPointerOut={() => hover(false)}
         onClick={handleClick}
         position={[0, GOLDENRATIO / 2, 0]}
-        scale={[adjustedWidth, boundedHeight, 0.05 * scaleFactor]}
+        scale={[finalWidth, finalHeight, 0.05 * scaleFactor]}
       >
         <boxGeometry />
         <meshStandardMaterial
