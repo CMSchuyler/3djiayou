@@ -1,7 +1,7 @@
 import { useRef, useState, useEffect } from 'react';
 import { easing } from 'maath';
 import getUuid from 'uuid-by-string';
-import { useCursor, Image, Text } from '@react-three/drei';
+import { useCursor, Image as DreiImage, Text } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
 import PropTypes from 'prop-types';
 
@@ -24,7 +24,7 @@ const Frame = ({
 
   // 添加图片加载完成后的处理
   useEffect(() => {
-    const img = new Image();
+    const img = new window.Image();
     img.onload = () => {
       const aspectRatio = img.width / img.height;
       console.log(`${title} - 宽高比: ${aspectRatio.toFixed(3)}`);
@@ -127,7 +127,7 @@ const Frame = ({
           <boxGeometry />
           <meshBasicMaterial toneMapped={false} fog={false} />
         </mesh>
-        <Image
+        <DreiImage
           raycast={() => null}
           ref={image}
           position={[0, 0, 1]}
