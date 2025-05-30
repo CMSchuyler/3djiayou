@@ -76,7 +76,6 @@ const Frame = ({
   const frameWidth = 1 * scaleFactor;
   const frameHeight = frameWidth / preloadedAspectRatio;
   
-  // 限制高度在合理范围内
   const maxHeight = 1.2 * scaleFactor;
   const minHeight = 0.8 * scaleFactor;
   
@@ -91,6 +90,15 @@ const Frame = ({
     boundedHeight = minHeight;
     adjustedWidth = boundedHeight * preloadedAspectRatio;
   }
+
+  // 输出相框尺寸计算信息
+  console.log(`Frame ${title} 计算信息:`, {
+    原始宽高比: preloadedAspectRatio,
+    计算后宽度: adjustedWidth,
+    计算后高度: boundedHeight,
+    实际宽高比: adjustedWidth / boundedHeight,
+    缩放因子: scaleFactor
+  });
 
   return (
     <group position={position} rotation={rotation}>
@@ -125,7 +133,7 @@ const Frame = ({
           url={url}
           transparent
           opacity={imageOpacity}
-          scale={[0.9, 0.9, 1]} // 缩小图片以适应相框
+          scale={[0.9, 0.9, 1]}
           grayscale={0}
           toneMapped={false}
         />
