@@ -5,20 +5,6 @@ import { useCursor, Image, Text } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
 import PropTypes from 'prop-types';
 
-const FRAME_RATIOS = {
-  'Item 1': { width: 15, height: 12 },
-  'Item 2': { width: 15, height: 12 },
-  'Item 3': { width: 15, height: 12 },
-  'Item 4': { width: 15, height: 12 },
-  'Item 5': { width: 15, height: 12 },
-  'Item 6': { width: 15, height: 12 },
-  'Item 7': { width: 15, height: 12 },
-  'Item 8': { width: 15, height: 12 },
-  'Item 9': { width: 15, height: 12 },
-  'Item 10': { width: 15, height: 12 },
-  // ... 可以根据控制台输出的实际比例继续添加
-};
-
 const Frame = ({
   url,
   title,
@@ -35,6 +21,16 @@ const Frame = ({
   const [imageOpacity, setImageOpacity] = useState(0);
   const name = getUuid(url);
   useCursor(hovered);
+
+  // 添加图片加载完成后的处理
+  useEffect(() => {
+    const img = new Image();
+    img.onload = () => {
+      const aspectRatio = img.width / img.height;
+      console.log(`${title} - 宽高比: ${aspectRatio.toFixed(3)}`);
+    };
+    img.src = url;
+  }, [url, title]);
 
   useFrame((state, delta) => {
     if (!state || !state.camera || !position || !image.current || !frame.current) {
@@ -57,6 +53,8 @@ const Frame = ({
       setImageOpacity(Math.max(0, Math.min(1, opacity)));
   
       if (image.current.material) {
+        image.current.material.zoom = 1.1;
+        
         easing.damp3(
           image.current.scale,
           [0.85 * (hovered ? 0.85 : 1), 0.9 * (hovered ? 0.905 : 1), 1],
@@ -85,10 +83,23 @@ const Frame = ({
     }
   };
 
-  // 使用固定的宽高比
-  const frameRatio = FRAME_RATIOS[title] || { width: 15, height: 12 };
-  const adjustedWidth = frameRatio.width;
-  const boundedHeight = frameRatio.height;
+  const frameWidth = 1 * scaleFactor;
+  const frameHeight = frameWidth / GOLDENRATIO;
+  
+  const maxHeight = 1.2 * scaleFactor;
+  const minHeight = 0.8 * scaleFactor;
+  
+  let boundedHeight = frameHeight;
+  let adjustedWidth = frameWidth;
+  
+  if (frameHeight > maxHeight) {
+    boundedHeight = maxHeight;
+    adjustedWidth = boundedHeight * GOLDENRATIO;
+  } 
+  else if (frameHeight < minHeight) {
+    boundedHeight = minHeight;
+    adjustedWidth = boundedHeight * GOLDENRATIO;
+  }
 
   return (
     <group position={position} rotation={rotation}>
@@ -123,9 +134,6 @@ const Frame = ({
           url={url}
           transparent
           opacity={imageOpacity}
-          scale={[0.9, 0.9, 1]}
-          grayscale={0}
-          toneMapped={false}
         />
       </mesh>
       <Text
