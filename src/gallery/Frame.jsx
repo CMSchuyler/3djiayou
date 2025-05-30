@@ -44,8 +44,6 @@ const Frame = ({
       setImageOpacity(Math.max(0, Math.min(1, opacity)));
   
       if (image.current.material) {
-        image.current.material.zoom = 1;
-        
         if (image.current.scale) {
           easing.damp3(
             image.current.scale,
@@ -76,35 +74,15 @@ const Frame = ({
     }
   };
 
-  // 基准宽度
-  const baseWidth = 1 * scaleFactor;
-  
-  // 根据宽高比计算初始高度
-  const baseHeight = baseWidth / aspectRatio;
-  
-  // 高度限制
-  const maxHeight = 1.2 * scaleFactor;
-  const minHeight = 0.8 * scaleFactor;
-  
-  // 计算最终尺寸
-  let finalWidth = baseWidth;
-  let finalHeight = baseHeight;
-  
-  // 如果高度超出限制，按比例缩放整个frame
-  if (baseHeight > maxHeight) {
-    const scale = maxHeight / baseHeight;
-    finalHeight = maxHeight;
-    finalWidth = baseWidth * scale;
-  } 
-  else if (baseHeight < minHeight) {
-    const scale = minHeight / baseHeight;
-    finalHeight = minHeight;
-    finalWidth = baseWidth * scale;
-  }
+  // Frame尺寸计算
+  const frameWidth = 1 * scaleFactor;
+  const frameHeight = frameWidth / aspectRatio;
 
-  // 计算图片的缩放比例
-  // 使图片完全填充frame但保持原始比例
-  const imageScale = [1, aspectRatio, 1];
+  // 计算图片缩放
+  // 如果图片比例大于frame比例，以宽度为准
+  // 如果图片比例小于frame比例，以高度为准
+  const imageScaleX = 0.9; // 留出一些边距
+  const imageScaleY = imageScaleX * (frameWidth / frameHeight);
 
   return (
     <group position={position} rotation={rotation}>
@@ -114,7 +92,7 @@ const Frame = ({
         onPointerOut={() => hover(false)}
         onClick={handleClick}
         position={[0, GOLDENRATIO / 2, 0]}
-        scale={[finalWidth, finalHeight, 0.05 * scaleFactor]}
+        scale={[frameWidth, frameHeight, 0.05 * scaleFactor]}
       >
         <boxGeometry />
         <meshStandardMaterial
@@ -139,7 +117,7 @@ const Frame = ({
           url={url}
           transparent
           opacity={imageOpacity}
-          scale={imageScale}
+          scale={[imageScaleX, imageScaleY, 1]}
         />
       </mesh>
       <Text
