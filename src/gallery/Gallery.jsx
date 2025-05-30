@@ -4,7 +4,6 @@ import { useProgress } from '@react-three/drei';
 import PropTypes from 'prop-types';
 import Frames from './Frames';
 
-// 初始空数组，将被图片数据替换
 const defaultImages = [];
 
 const Gallery = forwardRef(({ onFrameClick }, ref) => {
@@ -44,14 +43,22 @@ const Gallery = forwardRef(({ onFrameClick }, ref) => {
           const imageData = mapping.map((entry, index) => {
             const isEven = index % 2 === 0;
             const row = Math.floor(index / 2);
-            const Z_OFFSET = 25; // 右侧相框比左侧Z轴偏移量
+            
+            // 调整基础高度和间距
+            const BASE_HEIGHT = 15; // 增加基础高度，确保在水面之上
+            const Y_SPACING = 8; // 垂直间距
+            const Z_SPACING = 40; // 减小Z轴间距，使画廊更紧凑
+            const Z_OFFSET = 20; // 右侧相框的Z轴偏移量
+            
+            // 计算每行的高度偏移，使相框呈波浪形排列
+            const heightOffset = Math.sin(row * 0.5) * 3;
             
             return {
               url: entry.localPath,
               title: entry.title || `Item ${index + 1}`,
               position: isEven
-                ? [-15, 7, 50 + row * 50] // 左侧
-                : [15, 7, (50 + row * 50) + Z_OFFSET], // 右侧，Z轴增加固定偏移
+                ? [-15, BASE_HEIGHT + heightOffset + (row * Y_SPACING), 50 + row * Z_SPACING] // 左侧
+                : [15, BASE_HEIGHT + heightOffset + (row * Y_SPACING), (50 + row * Z_SPACING) + Z_OFFSET], // 右侧
               rotation: isEven
                 ? [0, Math.PI / 12, 0]
                 : [0, -Math.PI / 12, 0]
@@ -59,7 +66,6 @@ const Gallery = forwardRef(({ onFrameClick }, ref) => {
           });
           
           setImages(imageData);
-          console.log('从映射文件加载了图片数据', imageData.length);
         } else {
           console.error('映射文件不存在');
           setLoading(false);
@@ -214,8 +220,6 @@ const Gallery = forwardRef(({ onFrameClick }, ref) => {
             }
             
             setFocusedFrame(null);
-            
-            console.log("相机已返回原位置:", state.camera.position);
           }
           
         } else {

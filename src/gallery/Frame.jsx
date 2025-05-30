@@ -82,7 +82,7 @@ const Frame = ({
   // 如果图片比例大于frame比例，以宽度为准
   // 如果图片比例小于frame比例，以高度为准
   const imageScaleX = 0.9; // 留出一些边距
-  const imageScaleY = imageScaleX * (frameWidth / frameHeight);
+  const imageScaleY = imageScaleX * (frameHeight / frameWidth);
 
   return (
     <group position={position} rotation={rotation}>
