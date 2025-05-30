@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useState } from 'react';
 import { easing } from 'maath';
 import getUuid from 'uuid-by-string';
 import { useCursor, Image as DreiImage, Text } from '@react-three/drei';
@@ -13,7 +13,8 @@ const Frame = ({
   scaleFactor,
   GOLDENRATIO,
   onFrameClick,
-  animationComplete
+  animationComplete,
+  aspectRatio
 }) => {
   const image = useRef();
   const frame = useRef();
@@ -21,16 +22,6 @@ const Frame = ({
   const [imageOpacity, setImageOpacity] = useState(0);
   const name = getUuid(url);
   useCursor(hovered);
-
-  // 添加图片加载完成后的处理
-  useEffect(() => {
-    const img = new window.Image();
-    img.onload = () => {
-      const aspectRatio = img.width / img.height;
-      console.log(`${title} - 宽高比: ${aspectRatio.toFixed(3)}`);
-    };
-    img.src = url;
-  }, [url, title]);
 
   useFrame((state, delta) => {
     if (!state || !state.camera || !position || !image.current || !frame.current) {
@@ -83,8 +74,9 @@ const Frame = ({
     }
   };
 
+  // Use the provided aspect ratio instead of GOLDENRATIO
   const frameWidth = 1 * scaleFactor;
-  const frameHeight = frameWidth / GOLDENRATIO;
+  const frameHeight = frameWidth / aspectRatio;
   
   const maxHeight = 1.2 * scaleFactor;
   const minHeight = 0.8 * scaleFactor;
@@ -94,11 +86,11 @@ const Frame = ({
   
   if (frameHeight > maxHeight) {
     boundedHeight = maxHeight;
-    adjustedWidth = boundedHeight * GOLDENRATIO;
+    adjustedWidth = boundedHeight * aspectRatio;
   } 
   else if (frameHeight < minHeight) {
     boundedHeight = minHeight;
-    adjustedWidth = boundedHeight * GOLDENRATIO;
+    adjustedWidth = boundedHeight * aspectRatio;
   }
 
   return (
@@ -157,7 +149,8 @@ Frame.propTypes = {
   scaleFactor: PropTypes.number.isRequired,
   GOLDENRATIO: PropTypes.number.isRequired,
   onFrameClick: PropTypes.func,
-  animationComplete: PropTypes.bool
+  animationComplete: PropTypes.bool,
+  aspectRatio: PropTypes.number.isRequired
 };
 
 export default Frame;
