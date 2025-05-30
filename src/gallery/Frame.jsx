@@ -44,14 +44,15 @@ const Frame = ({
       setImageOpacity(Math.max(0, Math.min(1, opacity)));
   
       if (image.current.material) {
-        image.current.material.zoom = 1.1;
-        
-        easing.damp3(
-          image.current.scale,
-          [0.85 * (hovered ? 0.85 : 1), 0.9 * (hovered ? 0.905 : 1), 1],
-          0.1,
-          delta
-        );
+        // 移除缩放动画，保持图片大小固定
+        if (image.current.scale) {
+          easing.damp3(
+            image.current.scale,
+            [1, 1, 1],
+            0.1,
+            delta
+          );
+        }
       }
       
       if (frame.current.material && frame.current.material.color) {
@@ -74,7 +75,6 @@ const Frame = ({
     }
   };
 
-  // Use the provided aspect ratio instead of GOLDENRATIO
   const frameWidth = 1 * scaleFactor;
   const frameHeight = frameWidth / aspectRatio;
   
@@ -126,6 +126,9 @@ const Frame = ({
           url={url}
           transparent
           opacity={imageOpacity}
+          scale={[0.85, 0.85, 1]} // 固定缩放比例
+          grayscale={0}
+          zoom={1} // 设置为1以避免额外缩放
         />
       </mesh>
       <Text
