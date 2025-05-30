@@ -23,9 +23,7 @@ const Frame = ({
   const name = getUuid(url);
   useCursor(hovered);
 
-  // 使用useFrame的安全方式
   useFrame((state, delta) => {
-    // 确保必要的对象存在
     if (!state || !state.camera || !position || !image.current || !frame.current) {
       return;
     }
@@ -45,22 +43,15 @@ const Frame = ({
       
       setImageOpacity(Math.max(0, Math.min(1, opacity)));
   
-      // 安全地访问材质属性
       if (image.current.material) {
-        image.current.material.zoom = 1.1;
-        
-        // 安全地执行easing操作
-        if (image.current.scale) {
-          easing.damp3(
-            image.current.scale,
-            [0.85 * (hovered ? 0.85 : 1), 0.9 * (hovered ? 0.905 : 1), 1],
-            0.1,
-            delta
-          );
-        }
+        easing.damp3(
+          image.current.scale,
+          [0.85 * (hovered ? 0.85 : 1), 0.9 * (hovered ? 0.905 : 1), 1],
+          0.1,
+          delta
+        );
       }
       
-      // 安全地访问frame材质
       if (frame.current.material && frame.current.material.color) {
         easing.dampC(
           frame.current.material.color,
@@ -77,12 +68,11 @@ const Frame = ({
   const handleClick = (e) => {
     e.stopPropagation();
     if (animationComplete && onFrameClick) {
-      // Pass the x position to determine which side the frame is on
       onFrameClick(title, position[0]);
     }
   };
 
-  // 使用预加载的宽高比计算Frame尺寸
+  // 计算相框尺寸
   const frameWidth = 1 * scaleFactor;
   const frameHeight = frameWidth / preloadedAspectRatio;
   
@@ -90,35 +80,17 @@ const Frame = ({
   const maxHeight = 1.2 * scaleFactor;
   const minHeight = 0.8 * scaleFactor;
   
-  // 判断高度是否需要调整
   let boundedHeight = frameHeight;
   let adjustedWidth = frameWidth;
   
-  // 如果高度超出最大值，按最大高度等比例缩小
   if (frameHeight > maxHeight) {
     boundedHeight = maxHeight;
-    // 保持宽高比，重新计算宽度
     adjustedWidth = boundedHeight * preloadedAspectRatio;
   } 
-  // 如果高度小于最小值，按最小高度等比例放大
   else if (frameHeight < minHeight) {
     boundedHeight = minHeight;
-    // 保持宽高比，重新计算宽度
     adjustedWidth = boundedHeight * preloadedAspectRatio;
   }
-  
-  // 调整Image组件中的缩放因子，确保图片适应Frame
-  const adjustImageZoom = () => {
-    if (image.current && image.current.material) {
-      // 根据Frame的尺寸调整图片的缩放
-      image.current.material.zoom = 1.0; // 基础缩放值
-    }
-  };
-  
-  // 每次渲染后调整图片
-  useEffect(() => {
-    adjustImageZoom();
-  }, [preloadedAspectRatio]);
 
   return (
     <group position={position} rotation={rotation}>
@@ -128,11 +100,7 @@ const Frame = ({
         onPointerOut={() => hover(false)}
         onClick={handleClick}
         position={[0, GOLDENRATIO / 2, 0]}
-        scale={[
-          adjustedWidth,
-          boundedHeight,
-          0.05 * scaleFactor,
-        ]}
+        scale={[adjustedWidth, boundedHeight, 0.05 * scaleFactor]}
       >
         <boxGeometry />
         <meshStandardMaterial
@@ -157,6 +125,9 @@ const Frame = ({
           url={url}
           transparent
           opacity={imageOpacity}
+          scale={[0.9, 0.9, 1]} // 缩小图片以适应相框
+          grayscale={0}
+          toneMapped={false}
         />
       </mesh>
       <Text
@@ -172,7 +143,6 @@ const Frame = ({
   );
 };
 
-// 添加PropTypes验证
 Frame.propTypes = {
   url: PropTypes.string.isRequired,
   title: PropTypes.string.isRequired,
@@ -185,9 +155,8 @@ Frame.propTypes = {
   preloadedAspectRatio: PropTypes.number
 };
 
-// 设置默认值
 Frame.defaultProps = {
-  preloadedAspectRatio: 1.61803398875 // 默认使用黄金比例
+  preloadedAspectRatio: 1.61803398875
 };
 
 export default Frame;
